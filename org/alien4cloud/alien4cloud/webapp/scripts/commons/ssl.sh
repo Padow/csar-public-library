@@ -63,6 +63,35 @@ generateKeyAndStore() {
 	echo ${TEMP_DIR}
 }
 
+# Try to guess the Operating System distribution
+# The guessing algorithm is:
+#   1- use lsb_release retrieve the distribution name (should normally be present it's listed as requirement of VM images in installation guide)
+#   2- If lsb_release is not present check if yum is present. If yes assume that we are running Centos
+#   3- Otherwise check if apt-get is present. If yes assume that we are running Ubuntu
+#   4- Otherwise give-up and return "unknown"
+#
+# Any way the returned string is in lower case.
+# This function prints the result to the std output so you should use the following form to retrieve it:
+# os_dist="$(get_os_distribution)"
+get_os_distribution () {
+  rname="unknown"
+  if  [[ "$(which lsb_release)" != "" ]]
+    then
+    rname=$(lsb_release -si | tr [:upper:] [:lower:])
+  else
+    if [[ "$(which yum)" != "" ]]
+      then
+      # assuming we are on Centos
+      rname="centos"
+    elif [[ "$(which apt-get)" != "" ]]
+      then
+      # assuming we are on Ubuntu
+      rname="ubuntu"
+    fi
+  fi
+  echo ${rname}
+}
+
 # Install a CA certificate into the system ca-certificates file
 #
 # WARNING: only works for Ubuntu os
@@ -71,9 +100,20 @@ generateKeyAndStore() {
 # ARGS:
 # - $1 path to the CA to install
 install_CAcertificate() {
+	distro=$(get_os_distribution)
 	CAfile=$1
 	echo "Installing CA ${CAfile} into the system..."
-	sudo cp $CAfile /usr/local/share/ca-certificates/_ca.crt
-	sudo update-ca-certificates
+	echo "OS is : "$distro
+	if [[ $distro == "centos" ]]; then
+		sudo cp $CAfile /etc/pki/ca-trust/source/anchors/_ca.crt
+		sudo update-ca-trust extract
+	elif [[ $distro == "ubuntu" ]]; then
+			sudo cp $CAfile /usr/local/share/ca-certificates/_ca.crt
+			sudo update-ca-certificates
+	else
+		echo "OS not yet supported"
+	fi
+
+
 	echo "CA ${CAfile} installed"
 }
