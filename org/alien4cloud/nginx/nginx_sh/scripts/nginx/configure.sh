@@ -14,7 +14,7 @@ if [ "$TARGET_PROTOCOL" == "https" -o "$FRONT_PROTOCOL" == "https" ]; then
   echo "activating SSL on reverse proxy"
   require_envs "CA_PASSPHRASE"
 
-  sudo cp -f $config/nginx.ssl /etc/nginx/sites-enabled/default
+  sudo cp -f $config/nginx.ssl /etc/nginx/conf.d/${CONF_FILE}
 
   SSL_DIR=/etc/nginx/ssl
   sudo mkdir -p $SSL_DIR

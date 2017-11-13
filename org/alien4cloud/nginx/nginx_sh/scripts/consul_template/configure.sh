@@ -32,7 +32,6 @@ if [ "$FRONT_PROTOCOL" == "https" ]; then
 		then
 		sudo cp $config/nginx.ssl.ctpl ${TEMPLATE_PATH}
 	fi
-
 fi
 
 sudo sed -i -e "s/%LISTEN_PORT%/${LISTEN_PORT}/g" $TEMPLATE_PATH
