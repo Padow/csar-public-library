@@ -25,7 +25,14 @@ elif [[ "$(which apt-get)" != "" ]]
 fi
 
 if [ "$FRONT_PROTOCOL" == "https" ]; then
-	sudo cp $config/nginx.ssl.ctpl ${TEMPLATE_PATH}
+	if [[ "$(which yum)" != "" ]]
+		then
+		sudo cp $config/nginx.ssl.centos.ctpl ${TEMPLATE_PATH}
+	elif [[ "$(which apt-get)" != "" ]]
+		then
+		sudo cp $config/nginx.ssl.ctpl ${TEMPLATE_PATH}
+	fi
+
 fi
 
 sudo sed -i -e "s/%LISTEN_PORT%/${LISTEN_PORT}/g" $TEMPLATE_PATH
