@@ -26,4 +26,5 @@ server {
 {{ end }}
 {{ end }}
 {{ else }}
+  Faild
 {{ end }}
