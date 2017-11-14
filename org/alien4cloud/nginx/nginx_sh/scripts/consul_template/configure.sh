@@ -16,21 +16,17 @@ require_envs "AGENT_API_PORT AGENT_IP TLS_ENABLED"
 
 # generate the nginx config template
 TEMPLATE_PATH="${CONF_PATH}/nginx.conf.ctpl"
-if [[ "$(which yum)" != "" ]]
-	then
-	sudo cp $config/nginx.conf.centos.ctpl ${TEMPLATE_PATH}
-elif [[ "$(which apt-get)" != "" ]]
-	then
-	sudo cp $config/nginx.conf.ctpl ${TEMPLATE_PATH}
-fi
-
-if [ "$FRONT_PROTOCOL" == "https" ]; then
-	if [[ "$(which yum)" != "" ]]
-		then
+if [[ "$(which yum)" != "" ]]; then
+	if [ "$FRONT_PROTOCOL" == "https" ]; then
 		sudo cp $config/nginx.ssl.centos.ctpl ${TEMPLATE_PATH}
-	elif [[ "$(which apt-get)" != "" ]]
-		then
+	elif [[ "$FRONT_PROTOCOL" == "http" ]]; then
+		sudo cp $config/nginx.conf.centos.ctpl ${TEMPLATE_PATH}
+	fi
+elif [[ "$(which apt-get)" != "" ]];	then
+	if [ "$FRONT_PROTOCOL" == "https" ]; then
 		sudo cp $config/nginx.ssl.ctpl ${TEMPLATE_PATH}
+	elif [[ "$FRONT_PROTOCOL" == "http" ]]; then
+	  sudo cp $config/nginx.conf.ctpl ${TEMPLATE_PATH}
 	fi
 fi
 
