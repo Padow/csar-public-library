@@ -1,0 +1,64 @@
+tosca_definitions_version: alien_dsl_1_4_0
+
+metadata:
+  template_name: org.alien4cloud.elasticsearch.ubuntu
+  template_version: 1.4.0-SNAPSHOT
+  template_author: alien4cloud
+
+imports:
+  - tosca-normative-types:1.0.0-ALIEN14
+  - org.alien4cloud.java.jdk.linux:1.4.0-SNAPSHOT
+  - org.alien4cloud.elasticsearch.pub:1.4.0-SNAPSHOT
+
+node_types:
+
+  org.alien4cloud.elasticsearch.centos.nodes.ElasticSearch:
+    derived_from: org.alien4cloud.elasticsearch.pub.nodes.ElasticSearchService
+    description: >
+      Installation of replicated ElasticSearch (if this node is scaled, will be replicated).
+    properties:
+      component_version:
+        description: The version of Elasticsearch
+        type: version
+        default: 1.7.0
+        constraints:
+          - valid_values: [ "1.7.0" ]
+      elasticsearch_url:
+        type: string
+        required: true
+        default: "https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-1.7.6.tar.gz"
+      install_path:
+        type: string
+        required: true
+        default: "/opt/"
+      cluster_name:
+        description: The name of the ElasticSearch cluster.
+        type: string
+        required: true
+        default: "escluster"
+      secured:
+        type: boolean
+
+    interfaces:
+      Standard:
+        create:
+          inputs:
+            APPLICATION_URL: { get_property: [SELF, elasticsearch_url] }
+            INSTALL_PATH: { get_property: [SELF, install_path] }
+          implementation: scripts/elasticsearch/install_elasticsearch.sh
+
+        configure:
+          inputs:
+            ES_IP: { get_attribute: [HOST, ip_address] }
+            CLUSTER_NAME: { get_property: [SELF, cluster_name] }
+            HTTP_PORT: { get_property: [SELF, http, port] }
+            SECURED: { get_property: [SELF, secured] }
+            INSTALL_PATH: { get_property: [SELF, install_path] }
+          implementation: scripts/elasticsearch/configure_elasticsearch.sh
+        start:
+          inputs:
+          INSTALL_PATH: { get_property: [SELF, install_path] }
+          implementation: scripts/elasticsearch/start_elasticsearch.sh
+      - commons:
+          file: scripts/commons
+          type: tosca.artifacts.File
