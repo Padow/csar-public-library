@@ -57,8 +57,9 @@ node_types:
           implementation: scripts/elasticsearch/configure_elasticsearch.sh
         start:
           inputs:
-          INSTALL_PATH: { get_property: [SELF, install_path] }
+            INSTALL_PATH: { get_property: [SELF, install_path] }
           implementation: scripts/elasticsearch/start_elasticsearch.sh
+    artifacts:
       - commons:
           file: scripts/commons
           type: tosca.artifacts.File
